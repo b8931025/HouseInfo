@@ -7,30 +7,6 @@ from email.mime.multipart import MIMEMultipart
 import smtplib
 from Info591 import Info591
 
-#信箱SMTP url
-urlSMTP = "smtp.gmail.com:587"
-#信箱登入密碼
-passwd = ''
-#寄件人信箱
-mail_from = 'xxxx@gmail.com'
-#收件人信箱
-receivers = ['xxxx@gmail.com']
-
-#縣市
-county = None
-#鄉鎮市區
-section = None
-#縣市價格區間
-priceRange = None
-#鄉鎮市區CheckBox
-chksSect = []
-#鄉鎮市區CheckBox value
-chksSectVar = []
-#價格區間CheckBox
-chksPriceRang = []
-#價格區間CheckBox value
-chksPriceRangVar = []
-
 def setUI():
     #設定鄉鎮市區
     _sec = section[regionVar.get()]
@@ -92,10 +68,14 @@ def mailInfo(result):
     #寄信
     smtp.sendmail(msg['From'], mail_to , msg.as_string())
 
-def execQry():
+def execQry(_county=None,_section=None,_priceRange=None):
+    if _county == None : _county = regionVar.get()
+    if _section == None : _section = getSection()
+    if _priceRange == None : _priceRange = getPriceRange()
+
     #查詢591資料
     dBgn = datetime.now()
-    info = Info591(regionVar.get(),getSection(),getPriceRange())
+    info = Info591(_county,_section,_priceRange)
     result = info.getInfo591()
     dEnd = datetime.now()
     result.append("所花時間:" + str((dEnd - dBgn).seconds))
@@ -131,57 +111,92 @@ def execQry():
     newWin.mainloop()
     
 if __name__ == '__main__':
+    #縣市
+    county = None
+    #鄉鎮市區
+    section = None
+    #縣市價格區間
+    priceRange = None
+    #鄉鎮市區CheckBox
+    chksSect = []
+    #鄉鎮市區CheckBox value
+    chksSectVar = []
+    #價格區間CheckBox
+    chksPriceRang = []
+    #價格區間CheckBox value
+    chksPriceRangVar = []
+    # 縣/鄉鎮/價格
+    _county ,_section ,_priceRange = None,None,None
+
     # 縣市
     with open(r'json\county.json', encoding='utf-8') as json_data: county = json.load(json_data)[0]
     # 鄉鎮市區
     with open(r'json\section.json', encoding='utf-8') as json_data: section = json.load(json_data)[0]
     # 縣市價格區間
     with open(r'json\priceRange.json', encoding='utf-8') as json_data: priceRange = json.load(json_data)[0]
+    # 設定檔
+    with open(r'json\config.json', encoding='utf-8') as json_data: cfgData = json.load(json_data)[0]
 
-    #產生視窗
-    my_window = tk.Tk()
-    #標題
-    my_window.title('591租屋網')
-    #視窗大小
-    my_window.geometry('600x400')
-    
-    lb1 = tk.Label(my_window, text='縣市')
-    lb1.grid(row=0,column=4)
+    # 信箱SMTP url
+    urlSMTP = cfgData['urlSMTP']
+    # 信箱登入密碼
+    passwd = cfgData['passwd']
+    # 寄件人信箱
+    mail_from = cfgData['mail_from']
+    # 收件人信箱
+    receivers = cfgData['receivers']
 
-    #縣市radioButton
-    r,c=0,0
-    cnt = 0
-    regionVar = tk.StringVar()
-    for k,v in county.items():
-        rdo = tk.Radiobutton(my_window, text=v, variable=regionVar, value=k,command=setUI)
-        rdo.grid(row=1 + (cnt // 9),column=cnt % 9)
-        cnt += 1
-    
-    #設定預設值 1:台北
-    regionVar.set('1')
-    lb2 = tk.Label(my_window, text='鄉鎮市區')
-    lb2.grid(row=4,column=4)
-    
-    #初使化鄉鎮市CheckBox ※最多38個
-    for i in range(0,38):
-        chkValue = tk.BooleanVar()
-        chksSect.append(tk.Checkbutton(my_window, text=str(i), var=chkValue)) 
-        chksSectVar.append(chkValue)
+    # 設定檔已有預設值，就直接查詢
+    if "county" in cfgData and len(cfgData["county"]) > 0 and "section" in cfgData and len(cfgData["section"]) > 0 and "priceRange" in cfgData and len(cfgData["priceRange"]) > 0 :
+        _county = cfgData["county"]
+        _section = cfgData["section"]
+        _priceRange = cfgData["priceRange"]
+        execQry(_county,_section,_priceRange)
+    else: # 設定檔無預設值，就跳出畫面讓使用者選取
+        #產生視窗
+        my_window = tk.Tk()
+        #標題
+        my_window.title('591租屋網')
+        #視窗大小
+        my_window.geometry('600x400')
 
-    lb1 = tk.Label(my_window, text='價格')
-    lb1.grid(row=10,column=4)
+        lb1 = tk.Label(my_window, text='縣市')
+        lb1.grid(row=0,column=4)
 
-    #初使化價格區間 ※最多7個
-    for i in range(0,7):
-        chkValue = tk.BooleanVar()
-        chksPriceRang.append(tk.Checkbutton(my_window, text=str(i), var=chkValue))
-        chksPriceRangVar.append(chkValue)
+        #縣市radioButton
+        r,c=0,0
+        cnt = 0
+        regionVar = tk.StringVar()
+        for k,v in county.items():
+            rdo = tk.Radiobutton(my_window, text=v, variable=regionVar, value=k,command=setUI)
+            rdo.grid(row=1 + (cnt // 9),column=cnt % 9)
+            cnt += 1
 
-    setUI()
-    
-    btnQry = tk.Button(my_window,text='查詢',command=execQry)
-    btnQry.grid(row=14,column=4)
-    
-    #進入事件迴圈
-    my_window.mainloop()
+        #設定預設值 1:台北
+        regionVar.set('1')
+        lb2 = tk.Label(my_window, text='鄉鎮市區')
+        lb2.grid(row=4,column=4)
+
+        #初使化鄉鎮市CheckBox ※最多38個
+        for i in range(0,38):
+            chkValue = tk.BooleanVar()
+            chksSect.append(tk.Checkbutton(my_window, text=str(i), var=chkValue))
+            chksSectVar.append(chkValue)
+
+        lb1 = tk.Label(my_window, text='價格')
+        lb1.grid(row=10,column=4)
+
+        #初使化價格區間 ※最多7個
+        for i in range(0,7):
+            chkValue = tk.BooleanVar()
+            chksPriceRang.append(tk.Checkbutton(my_window, text=str(i), var=chkValue))
+            chksPriceRangVar.append(chkValue)
+
+        setUI()
+
+        btnQry = tk.Button(my_window,text='查詢',command=execQry)
+        btnQry.grid(row=14,column=4)
+
+        #進入事件迴圈
+        my_window.mainloop()
 
