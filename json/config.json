@@ -1,12 +1,9 @@
 [{
   "urlSMTP" : "smtp.gmail.com:587",
   "passwd" : "",
-  "mail_from" : "xxxx@gmail.com",
-  "receivers" : ['xxxx@gmail.com'],
-  "" : "",
-  "" : "",
-  "" : "",
-  "" : "",
-  "" : "",
-
+  "mail_from" : "xxx@gmail.com",
+  "receivers" : ["xxx@gmail.com"],
+  "county" : "10",
+  "section" : "134",
+  "priceRange" : "0_200,200_400,400_800"
 }]
