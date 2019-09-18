@@ -1,17 +1,16 @@
 ## HouseInfo
 該程式是利用爬蟲技術(requests,Selenium)，針對台灣特定鄉鎮市區、特定價格，爬取591法拍屋資訊後，
-將結果發送至指定信箱。
+將結果發送至指定信箱。若有意買法拍屋者，可將該批次檔加入電腦排程定時爬取相關資訊，彙整後，寄信通知相關人員。
 
-若有意買法拍屋者，可將該批次檔加入電腦排程定時爬取相關資訊，
-彙整後，寄信通知相關人員
+## 操作界面:tkinter
 
-操作界面:tkinter
 ![logo](img/02.jpg)
 
-彙整寄至信箱
+## 彙整寄至信箱
+
 ![logo](img/01.jpg)
 
-##使用
+## 使用
 ```shell
 先設定json/config.json，將相關參數設定好，再選擇下面兩種方式操作
 
@@ -21,7 +20,7 @@
 2.進入圖型化操作介面
   python.exe HouseInfo.py
 ```
-##json/config.json設定檔說明 
+## json/config.json設定檔說明 
 ```
 urlSMTP :  SMTP伺服器設定 資料型態string ex:smtp.gmail.com:587
 passwd :  信箱密碼 資料型態string
