@@ -10,41 +10,41 @@ from Info591 import Info591
 # 設定使用者介面
 def setUI():
     #設定鄉鎮市區
-    _sec = section[regionVar.get()]
+    _sec = [ c for c in county if c['id'] == regionVar.get()][0]['section']
     for i in range(0,len(chksSectVar)):
         chksSectVar[i].set(False)
-        if i < len(section[regionVar.get()]) :
-            chksSect[i].config(text=list(_sec.values())[i])
+        if i < len(_sec) :
+            chksSect[i].config(text=_sec[i]['name'])
             chksSect[i].grid(sticky="W",row=(i // 9)+5,column=(i % 9))
         else:
             chksSect[i].grid_remove()
 
     #設定價格
-    _rag = priceRange[regionVar.get()]
+    _rag = [ c for c in county if c['id'] == regionVar.get()][0]['priceRange']
     for i in range(0,len(chksPriceRangVar)):
         chksPriceRangVar[i].set(False)
-        if i < len(priceRange[regionVar.get()]) :
-            chksPriceRang[i].config(text=list(_rag.values())[i])
+        if i < len(_rag) :
+            chksPriceRang[i].config(text=_rag[i]['name'])
             chksPriceRang[i].grid(sticky="W",columnspan=2,row=(i // 4)+11,column=(i % 4)*2)
         else:
             chksPriceRang[i].grid_remove()
 
 # 取得所選的鄉鎮區
-def getSection(): 
-    xx = section[regionVar.get()]
+def getSection():
+    _sec = [ c for c in county if c['id'] == regionVar.get()][0]['section']
     sOut = []
-    for i in range(0,len(xx)):
+    for i in range(0,len(_sec)):
         if chksSectVar[i].get():
-            sOut.append(list(xx.keys())[i])
+            sOut.append(_sec[i]['code'])
     return ','.join(sOut)
 
 # 取得所選的價格
 def getPriceRange():
-    xx = priceRange[regionVar.get()]
+    _pr = [ c for c in county if c['id'] == regionVar.get()][0]['priceRange']
     sOut = []
-    for i in range(0,len(xx)):
+    for i in range(0,len(_pr)):
         if chksPriceRangVar[i].get():
-            sOut.append(list(xx.keys())[i])
+            sOut.append(_pr[i]['code'])
     return ','.join(sOut)
 
 # 寄出查詢結果
@@ -109,9 +109,9 @@ def execQry(_county=None,_section=None,_priceRange=None):
             txtOut.insert(tk.END,s + '\n')
         else:
             txtOut.insert(tk.END,str(type(s)) + '\n')
-            
+
     mailInfo(result)
-            
+
     #進入事件迴圈
     newWin.mainloop()
 
@@ -134,12 +134,8 @@ if __name__ == '__main__':
     # 縣/鄉鎮/價格
     _county ,_section ,_priceRange = None,None,None
 
-    # 縣市
-    with open(r'json\county.json', encoding='utf-8') as json_data: county = json.load(json_data)[0]
-    # 鄉鎮市區
-    with open(r'json\section.json', encoding='utf-8') as json_data: section = json.load(json_data)[0]
-    # 縣市價格區間
-    with open(r'json\priceRange.json', encoding='utf-8') as json_data: priceRange = json.load(json_data)[0]
+    # 縣市/鄉鎮市區/價格區間
+    with open(r'json\county.json', encoding='utf-8') as json_data: county = json.load(json_data)
     # 設定檔
     with open(r'json\config.json', encoding='utf-8') as json_data: cfgData = json.load(json_data)[0]
 
@@ -181,8 +177,8 @@ if __name__ == '__main__':
         #縣市radioButton
         cnt = 0
         regionVar = tk.StringVar()
-        for k,v in county.items():
-            rdo = tk.Radiobutton(my_window, text=v, variable=regionVar, value=k,command=setUI)
+        for c in county:
+            rdo = tk.Radiobutton(my_window, text=c['name'], variable=regionVar, value=c['id'],command=setUI)
             rdo.grid(row=1 + (cnt // 9),column=cnt % 9)
             cnt += 1
         #設定預設值 1:台北
@@ -204,4 +200,3 @@ if __name__ == '__main__':
 
         #進入事件迴圈
         my_window.mainloop()
-
