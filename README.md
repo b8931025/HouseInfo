@@ -27,7 +27,7 @@ passwd :  信箱密碼 資料型態string
 mail_from :  寄件者信箱 資料型態string ex:john123@gmail.com
 receivers : 收件人信箱，可設定多個，資料型態list  ex:["judy003@gmail.com","vivi004@gmail.com"]
 county :  縣市代碼，參考 json/county.json 資料型態string
-section :  鄉鎮市區代碼，參考 json/section.json 資料型態string
-priceRange :  價格設定，可設定多個，用逗號隔開，參考 json/priceRange.json 資料型態string ex:0_200,200_400
+section :  鄉鎮市區代碼，參考 json/county.json 資料型態string
+priceRange :  價格設定，可設定多個，用逗號隔開，參考 json/county.json 資料型態string ex:0_200,200_400
 
 ```
